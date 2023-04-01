@@ -1,10 +1,10 @@
 package edu.usersystem.service;
 
+import edu.usersystem.MockClass4Tests;
 import edu.usersystem.controller.request.UsuarioRequest;
-import edu.usersystem.domain.Endereco;
 import edu.usersystem.domain.Usuario;
+import edu.usersystem.integration.viacep.Exception.ViaCepIntegrationException;
 import edu.usersystem.integration.viacep.ViaCepService;
-import edu.usersystem.integration.viacep.response.CepResponse;
 import edu.usersystem.repository.UserRepository;
 import edu.usersystem.service.Exception.DadosDeUsuarioJaExistenteException;
 import edu.usersystem.service.Exception.EmailInvalidoException;
@@ -19,18 +19,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @ExtendWith(MockitoExtension.class)
-public class UsuarioServiceTest {
+public class UsuarioServiceTest extends MockClass4Tests {
 
     @Mock
     private UserRepository repository;
@@ -58,6 +56,9 @@ public class UsuarioServiceTest {
         assertEquals(LocalDate.now(), usuario.getDataCriacao().toLocalDate());
         assertNotNull(usuario.getEndereco());
         assertEquals("AP 101", usuario.getEndereco().getComplemento());
+
+        verify(viaCepService, times(1)).buscaEnderco(any());
+        verify(repository, times(1)).save(any());
     }
 
 
@@ -74,6 +75,8 @@ public class UsuarioServiceTest {
         doThrow(DataIntegrityViolationException.class).when(repository).save(any());
 
         assertThrows(DadosDeUsuarioJaExistenteException.class, () -> usuarioService.criaUsuario(mockUsuarioRequest()));
+        verify(viaCepService, times(1)).buscaEnderco(any());
+        verify(repository, times(1)).save(any());
     }
 
     /***
@@ -83,12 +86,14 @@ public class UsuarioServiceTest {
      * Para considerar um email valido, o mesmo deve ter o "@", dominio e o "." e alguma outra extensao como "com"
      */
     @Test
-    public void cria_usuario_com_erro_validacao_email() {
+    public void cria_usuario_com_erro_validacao_email() throws ViaCepIntegrationException {
 
         UsuarioRequest request = mockUsuarioRequest();
         request.setEmail("emailinvalido");
 
         assertThrows(EmailInvalidoException.class, () -> usuarioService.criaUsuario(request));
+        verify(viaCepService, times(0)).buscaEnderco(any());
+        verify(repository, times(0)).save(any());
     }
 
     /***
@@ -99,57 +104,14 @@ public class UsuarioServiceTest {
      * no minumo 6 caracteres no total.
      */
     @Test
-    public void cria_usuario_com_erro_validacao_senha() {
+    public void cria_usuario_com_erro_validacao_senha() throws ViaCepIntegrationException {
 
         UsuarioRequest request = mockUsuarioRequest();
         request.setSenha("123@");
 
         assertThrows(SenhaInvalidaException.class, () -> usuarioService.criaUsuario(request));
-    }
-
-
-    private CepResponse mockCepResponse() {
-        return CepResponse.builder()
-                .cep("38414505")
-                .complemento("AP 101.")
-                .bairro("Mansour")
-                .cidade("Uberlandia")
-                .logradouro("Avenida Américo Attiê")
-                .build();
-    }
-
-    private UsuarioRequest mockUsuarioRequest() {
-        return UsuarioRequest.builder()
-                .cep(38414505L)
-                .email("joaopedrocar@hotmail.com")
-                .username("joaopedroc")
-                .senha("1234@aA")
-                .complemento("AP 101")
-                .numero(61)
-                .build();
-    }
-
-    private Usuario mockUsuario() {
-        return Usuario.builder()
-                .nome("Joao Pedro Cardoso")
-                .username("joaopedroc")
-                .email("joaopedro@hotmail.com")
-                .senha("1234")
-                .endereco(mockEndereco())
-                .dataCriacao(LocalDateTime.now())
-                .build();
-    }
-
-    private Endereco mockEndereco() {
-        return Endereco.builder()
-                .cep(38414505L)
-                .numero(61)
-                .estado("MG")
-                .logradouro("Avenida Américo Attiê")
-                .complemento("AP 101")
-                .cidade("Uberlandia")
-                .bairro("Mansour")
-                .build();
+        verify(viaCepService, times(0)).buscaEnderco(any());
+        verify(repository, times(0)).save(any());
     }
 
 }

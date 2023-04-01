@@ -20,8 +20,8 @@ public class DefaultErrorHandler {
 
     @ExceptionHandler(DadosDeUsuarioJaExistenteException.class)
     public ResponseEntity<ErroResponse>  handleDadosDeUsuarioJaExistenteException(DadosDeUsuarioJaExistenteException ex) {
-        return ResponseEntity.status(400).body(new ErroResponse("DADOS_USUARIO_INVALIDO",
-                "Os dados informados do usuario são invalidos!"));
+        return ResponseEntity.status(400).body(new ErroResponse("DADOS_USUARIO_JA_CADASTRADO",
+                "Os dados informados do usuario representam um usuario ja cadastrado!"));
     }
 
     @ExceptionHandler(EmailInvalidoException.class)
