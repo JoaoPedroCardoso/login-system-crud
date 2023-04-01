@@ -142,9 +142,33 @@ public class UsuarioControllerTestIT extends MockClass4Tests {
         assertNotNull("Os dados informados do usuario representam um usuario ja cadastrado!", error.getMensagem());
     }
 
+    /***
+     * Cenario de teste:
+     * Ao informar dados de um usuario com um cep inexistente / invalido, a integracao com viaCep deve falhar e o
+     * sistema deve retornar um FaileDependency(424) informando que a integracao com viaCep falhou!
+     *
+     */
+    @Test
+    public void cria_usuario_com_cep_invalido() {
+        stubParaBuscarCepNoViaCepComBadRequest();
+
+        ErroResponse error = given()
+                .contentType(ContentType.JSON)
+                .body(TesteUtils.loadPayload("/requestes/cadastra_usuario_cep_invalido.json"))
+                .post("/usuario").then().statusCode(424).extract().response().as(ErroResponse.class);
+
+        assertNotNull(error);
+        assertEquals("VIA_CEP_INTEGRATION_ERROR", error.getCodigo());
+        assertNotNull("Ocorreu um erro ao tentar realizar a integração com ViaCep", error.getMensagem());
+    }
+
     private void stubParaBuscarCepNoViaCep() {
         server.stubFor(get(urlEqualTo("/ws/38405326/json"))
                 .willReturn(okJson(TesteUtils.loadPayload("/responses/viacep/viacep_sucesso.json"))));
+    }
+
+    private void stubParaBuscarCepNoViaCepComBadRequest() {
+        server.stubFor(get(urlEqualTo("/ws/388888888/json")).willReturn(aResponse().withStatus(400)));
     }
 
 }
