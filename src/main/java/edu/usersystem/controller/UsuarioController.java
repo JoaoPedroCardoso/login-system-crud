@@ -4,6 +4,7 @@ import edu.usersystem.controller.Response.UsuarioResponse;
 import edu.usersystem.controller.request.UsuarioRequest;
 import edu.usersystem.integration.viacep.Exception.ViaCepIntegrationException;
 import edu.usersystem.service.Exception.DadosDeUsuarioJaExistenteException;
+import edu.usersystem.service.Exception.ValidationException;
 import edu.usersystem.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class UsuarioController {
     @PostMapping
     @RequestMapping("/usuario")
     private UsuarioResponse criaUsuario(@RequestBody UsuarioRequest usuarioRequest)
-            throws ViaCepIntegrationException, DadosDeUsuarioJaExistenteException {
+            throws ViaCepIntegrationException, DadosDeUsuarioJaExistenteException, ValidationException {
         return converteUsuario(usuarioService.criaUsuario(usuarioRequest));
     }
 

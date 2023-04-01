@@ -1,4 +1,4 @@
-package edu.usersystem.integration.handler;
+package edu.usersystem.configuration.handler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

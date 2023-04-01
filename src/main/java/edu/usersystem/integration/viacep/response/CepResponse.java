@@ -3,10 +3,12 @@ package edu.usersystem.integration.viacep.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
 @FieldDefaults(level= AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CepResponse {
