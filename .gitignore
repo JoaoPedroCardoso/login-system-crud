@@ -18,6 +18,7 @@ bin/
 !**/src/test/**/bin/
 
 gradle**
+build
 ### IntelliJ IDEA ###
 .idea
 *.iws
